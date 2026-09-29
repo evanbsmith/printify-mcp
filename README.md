@@ -1,40 +1,32 @@
-# Printify MCP for Claude
+# Printify MCP for Claude (Project HALO fork)
 
-Connect [Printify](https://printify.com) to [Claude](https://claude.ai) so you can create, update, and publish print-on-demand products straight from a chat. Drop in a design, describe what you want, and Claude builds the product on your store.
+Fork of [willjack92/printify-mcp](https://github.com/willjack92/printify-mcp) with three security fixes:
 
-This runs as a free Cloudflare Worker on **your own** Cloudflare account. Your Printify key stays in your account as an encrypted secret. No terminal required.
+1. **Private address.** The worker only answers at `/<URL_SECRET>/...`. Every other path returns 404, so a guessed `workers.dev` address is useless.
+2. **No unauthenticated pass-through.** The `/rest/*` and `/raw/*` routes, which forwarded any request to Printify with no login check, are removed.
+3. **Neutral instructions.** The original author's shop-specific pricing and copy rules are replaced with short HALO guidance.
 
-## Deploy it (one click, no terminal)
+## Deploy
 
-[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/willjack92/printify-mcp)
+[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/evanbsmith/printify-mcp)
 
-When you click the button you'll be asked to:
+You will be asked for two secrets:
 
-1. Connect your **GitHub** and **Cloudflare** accounts (both free).
-2. Paste your **Printify Personal Access Token** when prompted for `PRINTIFY_API_KEY`. Generate it in Printify under **Settings → Connections → Personal Access Tokens** (give it shops / products / uploads / orders permissions). It's a long string starting with `eyJ`.
-3. Click **Deploy**.
+- `PRINTIFY_API_KEY`: a Printify Personal Access Token (Printify > Settings > Connections). Grant shops, catalog, print providers, products and uploads. **Leave orders.write off** so the key cannot place orders.
+- `URL_SECRET`: a random string of 32+ characters (use a password generator). Anything shorter than 24 characters is rejected.
 
-After ~a minute you'll get a Worker URL like `https://printify-mcp.<your-subdomain>.workers.dev`.
+## Connect to Claude
 
-## Connect it to Claude
+Settings > Connectors > Add custom connector:
 
-In the Claude desktop app: **Settings → Connectors → Add custom connector**.
+- Name: Printify
+- URL: `https://printify-mcp.<your-subdomain>.workers.dev/<URL_SECRET>/mcp`
 
-- **Name:** Printify
-- **URL:** your Worker URL with `/mcp` on the end, e.g. `https://printify-mcp.<your-subdomain>.workers.dev/mcp`
+Test with: "List my Printify shops."
 
-Save, then test in a chat:
-
-> List my Printify shops.
-
-If your store comes back, you're connected.
-
-## What you can do
-
-Ask Claude to list shops, list/create/update/publish products, browse blueprints and print providers, upload designs, and check orders. There's also a raw REST passthrough for anything advanced.
+Treat the full connector URL like a password. If it leaks, change `URL_SECRET` in the Cloudflare dashboard (Workers > printify-mcp > Settings > Variables and Secrets).
 
 ## Notes
 
-- Your Printify token is stored as an encrypted Cloudflare secret, never in this code.
-- The cheap "Economy" shipping option has to be enabled by hand in the Printify dashboard per product (the API can't toggle it).
-- A light design disappears on a light garment and a dark design on a dark garment. Match light designs to dark shirts and dark designs to light shirts.
+- Economy shipping has to be enabled by hand in the Printify dashboard per product.
+- Match light designs to dark garments and dark designs to light garments.

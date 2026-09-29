@@ -20,8 +20,9 @@
   },
   "cloudflare": {
     "bindings": {
+      "URL_SECRET": { "description": "A long random string (32+ characters). It becomes part of your private connector URL." },
       "PRINTIFY_API_KEY": {
-        "description": "Your Printify Personal Access Token (a long string starting with 'eyJ'). Generate it in Printify under Settings > Connections > Personal Access Tokens, with shops/products/uploads/orders permissions."
+        "description": "Your Printify Personal Access Token (a long string starting with 'eyJ'). Generate it in Printify under Settings > Connections > Personal Access Tokens, with shops, catalog, print providers, products and uploads permissions. Leave orders.write off."
       }
     }
   }

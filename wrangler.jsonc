@@ -22,6 +22,6 @@
     "enabled": true
   },
   "secrets": {
-    "required": ["PRINTIFY_API_KEY"]
+    "required": ["PRINTIFY_API_KEY", "URL_SECRET"]
   }
 }
